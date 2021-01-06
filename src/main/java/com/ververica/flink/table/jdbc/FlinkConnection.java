@@ -402,6 +402,7 @@ public class FlinkConnection implements Connection {
 		String host;
 		int port;
 		String planner = null;
+		String executionType = null;
 
 		int argumentStart = url.indexOf('?');
 		if (argumentStart < 0) {
@@ -431,7 +432,11 @@ public class FlinkConnection implements Connection {
 
 			if (key.equals("planner")) {
 				planner = value;
-			} else {
+			}
+			else if (key.equals("executionType")) {
+				executionType = value;
+			}
+			else {
 				throw new IllegalArgumentException("Unknown url parameter key " + key);
 			}
 		}
@@ -440,12 +445,12 @@ public class FlinkConnection implements Connection {
 			throw new IllegalArgumentException(neededParams);
 		}
 
-		return new UrlInfo(host, port, planner);
+		return new UrlInfo(host, port, planner, executionType);
 	}
 
 	private SessionClient createSession(String url) throws Exception {
 		UrlInfo urlInfo = parseUrl(url);
-		return new SessionClient(urlInfo.host, urlInfo.port, "Flink-JDBC", urlInfo.planner, "batch", "Flink-JDBC-Connection-IO");
+		return new SessionClient(urlInfo.host, urlInfo.port, "Flink-JDBC", urlInfo.planner, urlInfo.executionType, "Flink-JDBC-Connection-IO");
 	}
 
 	/**
@@ -455,11 +460,13 @@ public class FlinkConnection implements Connection {
 		final String host;
 		final int port;
 		final String planner;
+		final String executionType;
 
-		UrlInfo(String host, int port, String planner) {
+		UrlInfo(String host, int port, String planner, String executionType) {
 			this.host = host;
 			this.port = port;
 			this.planner = planner;
+			this.executionType = executionType;
 		}
 	}
 }
